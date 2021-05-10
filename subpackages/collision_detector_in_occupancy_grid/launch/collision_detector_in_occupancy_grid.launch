@@ -1,0 +1,30 @@
+<!-- Launches: collision_detector_in_occupancy_grid -->
+<launch>
+	<arg name="drone_id_namespace"    default="drone11" />
+	<arg name="my_stack_directory" 	  default="$(env AEROSTACK_STACK)" />
+	<arg name="move_base_goal_topic"  default="move_base_simple/goal" />
+	<arg name="move_base_path_topic"  default="move_base/NavfnROS/plan" />
+	<arg name="output_path_topic" 	  default="path_with_id" />
+	<arg name="generate_path_service" default="generate_path" />
+	<arg name="debug"		  default="false" />
+	<arg name="timeout"		  default="10" />
+	<arg name="clearance"		  default="10" />
+	<!-- timeout in seconds -->
+
+	<group ns="$(arg drone_id_namespace)">
+		<node name="collision_detector_in_occupancy_grid"
+					pkg="collision_detector_in_occupancy_grid"
+					type="collision_detector_in_occupancy_grid"
+					output="screen">
+			<param name="~drone_id_namespace" 		value="$(arg drone_id_namespace)"		type="str"   />
+	    	<param name="~my_stack_directory" 		value="$(arg my_stack_directory)" 	 	type="str"   />
+	    	<param name="move_base_goal_topic" 		value="$(arg move_base_goal_topic)"	 	type="str"   />
+			<param name="move_base_path_topic" 		value="$(arg move_base_path_topic)"		type="str"   />
+			<param name="output_path_topic" 		value="$(arg output_path_topic)"		type="str"   />
+			<param name="generate_path_service"     value="$(arg generate_path_service)"	type="str"   />
+			<param name="debug"						value="$(arg debug)"					type="bool"  />
+			<param name="timeout"					value="$(arg timeout)"					type="double"/>
+			<param name="clearance"		  			value="$(arg clearance)"				type="double"/>
+		</node>
+	</group>
+</launch>

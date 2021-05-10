@@ -1,0 +1,50 @@
+<launch>
+      <arg name="namespace"                          default="drone1" />
+      <arg name="frecuency"                          default="100.0" />
+      <arg name="activate_behavior_srv"              default="activate_behavior" />
+      <arg name="deactivate_behavior_srv"            default="deactivate_behavior" />
+      <arg name="check_activation_conditions_srv"    default="check_activation_conditions" />
+      <arg name="activation_finished_topic"          default="behavior_activation_finished" />
+      <arg name="estimated_pose_topic"               default="self_localization/pose" />
+      <arg name="controllers_topic"                  default="command/high_level" />
+      <arg name="rotation_angles_topic"              default="rotation_angles" />
+      <arg name="initialize_yaw_srv"                 default="droneOdometryStateEstimator/setInitDroneYaw" />
+      <arg name="consult_belief"                     default="consult_belief" />
+      <arg name="behavior_system"                    default="navigation_with_lidar" />
+      <arg name="odometry_str"                       default="change_self_localization_mode_to_odometry" />
+      <arg name="debug"		                       default="false" />
+      <arg name="timeout"		                 default="10" />
+      <arg name="clearance"		                 default="0.20" />
+
+    <include file="$(find collision_detector_in_occupancy_grid)/launch/collision_detector_in_occupancy_grid.launch">
+      <arg name="drone_id_namespace"      value="$(arg namespace)" />
+	<arg name="debug"		            value="$(arg debug)" />
+	<arg name="timeout"		      value="$(arg timeout)" />
+	<arg name="clearance"		      value="$(arg clearance)" />
+    </include>
+
+    <include file="$(find path_planner_in_occupancy_grid)/launch/path_planner_in_occupancy_grid.launch">
+      <arg name="drone_id_namespace"      value="$(arg namespace)" />
+	<arg name="debug"		            value="$(arg debug)" />
+	<arg name="timeout"		      value="$(arg timeout)" />
+    </include>
+
+   <group ns="$(arg namespace)/$(arg behavior_system)">
+	       <param name="~namespace"                           value="$(arg namespace)"                          type="str" />
+             <param name="~frecuency"                           value="$(arg frecuency)"                          type="double" />
+             <param name="~activate_behavior_srv"               value="$(arg activate_behavior_srv)"              type="str" />
+             <param name="~deactivate_behavior_srv"             value="$(arg deactivate_behavior_srv)"            type="str" />
+             <param name="~check_activation_conditions_srv"     value="$(arg check_activation_conditions_srv)"    type="str" />
+	       <param name="~estimated_pose_topic"                value="$(arg estimated_pose_topic)"               type="str" />
+             <param name="~controllers_topic"                   value="$(arg controllers_topic)"                  type="str" />
+             <param name="~rotation_angles_topic"               value="$(arg rotation_angles_topic)"              type="str" />
+             <param name="~initialize_yaw_srv"                  value="$(arg initialize_yaw_srv)"                 type="str" />
+             <param name="~consult_belief"                      value="$(arg consult_belief)"                     type="str" />
+             <param name="~behavior_system"                     value="$(arg behavior_system)"                    type="str" />
+             <param name="~odometry_str"                        value="$(arg odometry_str)"                       type="str" /> 
+            
+       <node name="behavior_clear_occupancy_grid" pkg="navigation_with_lidar"  type="BehaviorClearOccupancyGrid"  output="screen"/>
+       <node name="behavior_generate_path_with_occupancy_grid" pkg="navigation_with_lidar"  type="BehaviorGeneratePathWithOccupancyGrid"  output="screen"/>
+       <node name="behavior_save_occupancy_grid" pkg="navigation_with_lidar"  type="BehaviorSaveOccupancyGrid"  output="screen"/>
+  </group>
+</launch>

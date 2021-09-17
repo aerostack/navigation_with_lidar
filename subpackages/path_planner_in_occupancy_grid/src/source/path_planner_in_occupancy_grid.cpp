@@ -175,7 +175,7 @@ void PathPlannerInOccupancyGrid::timeoutMonitorThread(){
       }
     }
     // Set timeout monitor frequency
-    boost::this_thread::sleep(boost::posix_time::milliseconds((1.d/MONITOR_FREQ) * 1000));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(int((1.d/MONITOR_FREQ) * 1000)));
   }
 }
 

@@ -51,6 +51,8 @@
 
 // Aerostack
 #include <robot_process.h>
+#include <behavior_coordinator_msgs/StopTask.h>
+
 #include <aerostack_msgs/GeneratePath.h>
 #include <aerostack_msgs/PathWithID.h>
 
@@ -82,6 +84,7 @@ private:
   ros::Subscriber map_sub;
   ros::Subscriber poseupdate_sub;
   ros::Publisher path_blocked_pub;
+  ros::ServiceClient stop_task_srv;
 
   nav_msgs::Path current_path;
   nav_msgs::OccupancyGrid occupancy_grid;
@@ -96,6 +99,7 @@ private:
   std::string map_topic_str;
   std::string poseupdate_topic_str;
   std::string path_blocked_topic_str;
+  std::string stop_task;
 
   // Callbacks
   void pathGeneratedCallback(const nav_msgs::Path &path);

@@ -53,7 +53,7 @@ void PathPlannerInOccupancyGrid::ownSetUp(){
   private_nh.param<std::string>("output_path_topic", output_path_topic_str, "path_with_id");
   private_nh.param<std::string>("generate_path_service", new_goal_server_str, "generate_path");
   private_nh.param<bool>("debug", DEBUG, false);
-  private_nh.param<double>("timeout", TIMEOUT_VALUE, 10);
+  private_nh.param<double>("timeout", TIMEOUT_VALUE, 20);
   world_pose_sub = node_handle.subscribe(self_localization_pose_topic_str, 1, &PathPlannerInOccupancyGrid::self_localization_pose, this);
   slam_out_pose_sub = node_handle.subscribe(slam_out_pose_topic_str, 1, &PathPlannerInOccupancyGrid::slam_out_pose, this);
   std::cout << "DEBUG " << (DEBUG ? "Enabled" : "Disabled") << std::endl;

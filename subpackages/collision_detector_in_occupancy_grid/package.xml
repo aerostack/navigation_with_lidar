@@ -15,6 +15,8 @@
   <build_depend>robot_process</build_depend>
   <build_depend>droneMsgsROS</build_depend>
   <build_depend>aerostack_msgs</build_depend>
+  <build_depend>behavior_coordinator_msgs</build_depend>
+  
   <build_depend>move_base</build_depend>
   <build_depend>hector_slam</build_depend>
   <build_depend>amcl</build_depend>
@@ -24,6 +26,8 @@
   <run_depend>robot_process</run_depend>
   <run_depend>droneMsgsROS</run_depend>
   <run_depend>aerostack_msgs</run_depend>
+  <run_depend>behavior_coordinator_msgs</run_depend>
+  
   <build_depend>move_base</build_depend>
   <build_depend>hector_slam</build_depend>
   <build_depend>amcl</build_depend>

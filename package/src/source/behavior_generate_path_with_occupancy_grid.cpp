@@ -46,7 +46,7 @@ int main(int argc, char** argv){
 BehaviorGeneratePathWithOccupancyGrid::BehaviorGeneratePathWithOccupancyGrid() : BehaviorExecutionManager()
 {
   setName("generate_path_with_occupancy_grid");
-  DEBUG = false;
+  DEBUG = true;
 }
 BehaviorGeneratePathWithOccupancyGrid::~BehaviorGeneratePathWithOccupancyGrid()
 {
@@ -204,10 +204,16 @@ void BehaviorGeneratePathWithOccupancyGrid::convertPath(
 
   for(int i = 0; i < path.poses.size(); i++){
     droneMsgsROS::dronePositionRefCommand next_waypoint;
-    next_waypoint.x = path.poses[i].pose.position.x;
-    next_waypoint.y = path.poses[i].pose.position.y;
+    next_waypoint.x = round( path.poses[i].pose.position.x * 10.0 ) / 10.0;
+    next_waypoint.y = round( path.poses[i].pose.position.y * 10.0 ) / 10.0;
     next_waypoint.z = target_position.z;
-    return_path.droneTrajectory.push_back(next_waypoint);
+    if (!return_path.droneTrajectory.empty() && (next_waypoint.x == return_path.droneTrajectory.back().x || next_waypoint.y == return_path.droneTrajectory.back().y)){
+      continue;
+    }
+    else {
+      return_path.droneTrajectory.push_back(next_waypoint);
+    }
+    
   }
 }
 
@@ -237,8 +243,14 @@ void BehaviorGeneratePathWithOccupancyGrid::addBelief(std::string belief){
   bool res = false;
   while (res == false){
     res = belief_manager_client.call(belief_msg);
+    if(DEBUG){
+      std::cout<< "Calling service " << is_finished << std::endl;
+    }  
   }
   is_finished = true;
+  if(DEBUG){
+    std::cout<< "Belief added " << is_finished << std::endl;
+  }  
 }
 
 // Extract input arguments

@@ -29,6 +29,7 @@ find_package(catkin REQUIRED
   robot_process
   droneMsgsROS
   aerostack_msgs
+  behavior_coordinator_msgs
 )
 
 catkin_package(
@@ -39,6 +40,7 @@ catkin_package(
   robot_process
   droneMsgsROS
   aerostack_msgs
+  behavior_coordinator_msgs
 )
 
 include_directories(

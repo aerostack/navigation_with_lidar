@@ -46,6 +46,7 @@ void CollisionDetectorInOccupancyGrid::ownSetUp(){
   private_nh.getParam ("clearance", clearance);
   private_nh.param<std::string>("move_base_path_topic", move_base_path_topic_str, "move_base/NavfnROS/plan");
   private_nh.param<std::string>("slam_out_pose", poseupdate_topic_str, "slam_out_pose");
+  private_nh.param<std::string>("stop_task", stop_task, "stop_task");
   //private_nh.param<std::string>("map_topic", map_topic_str, "move_base/local_costmap/costmap");
   private_nh.param<std::string>("map_topic", map_topic_str, "map");
   private_nh.param<std::string>("path_blocked_topic", path_blocked_topic_str, "environnment/path_blocked_by_obstacle");
@@ -53,6 +54,7 @@ void CollisionDetectorInOccupancyGrid::ownSetUp(){
   map_sub = node_handle.subscribe(map_topic_str, 1, &CollisionDetectorInOccupancyGrid::mapCallback, this);
   poseupdate_sub = node_handle.subscribe(poseupdate_topic_str, 1, &CollisionDetectorInOccupancyGrid::poseupdateCallback, this);
   path_blocked_pub = node_handle.advertise<std_msgs::Bool>(path_blocked_topic_str, 1,true);
+  stop_task_srv = node_handle.serviceClient<behavior_coordinator_msgs::StopTask>(stop_task);
   std::cout << "DEBUG " << (DEBUG ? "Enabled" : "Disabled") << std::endl;
   //ros::NodeHandle n;
   //ros::ServiceClient client = n.serviceClient<hector_slam::dynamic_map>(nav_msgs/GetMap);
@@ -82,7 +84,7 @@ void CollisionDetectorInOccupancyGrid::pathGeneratedCallback(const nav_msgs::Pat
 
 
 bool CollisionDetectorInOccupancyGrid::checkPointCollision(const geometry_msgs::PoseStamped point, const double range){
-  double off = 0.5;
+  double off = 0.3;
   int x1 = ((point.pose.position.x - range - occupancy_grid.info.origin.position.x) / occupancy_grid.info.resolution - off);
   int x2 = ((point.pose.position.x + range - occupancy_grid.info.origin.position.x) / occupancy_grid.info.resolution - off);
   int y1 = ((point.pose.position.y - range - occupancy_grid.info.origin.position.y) / occupancy_grid.info.resolution - off);
@@ -193,4 +195,13 @@ void CollisionDetectorInOccupancyGrid::mapCallback(const nav_msgs::OccupancyGrid
   std_msgs::Bool msg;
   msg.data = obstacle;
   path_blocked_pub.publish(msg);
+  /*if (obstacle){
+    behavior_coordinator_msgs::StopTask send_path;
+    
+    std::string self_position = "[[" + std::to_string(current_grid_pose.pose.position.x) + "," + std::to_string(current_grid_pose.pose.position.y)
+    + "," + std::to_string(current_grid_pose.pose.position.z) + "]]";
+    send_path.request.name = "SEND_PATH";
+    std::cout << self_position << std::endl;
+    stop_task_srv.call(send_path);
+  }*/
 }

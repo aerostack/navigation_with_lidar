@@ -204,10 +204,10 @@ void BehaviorGeneratePathWithOccupancyGrid::convertPath(
 
   for(int i = 0; i < path.poses.size(); i++){
     droneMsgsROS::dronePositionRefCommand next_waypoint;
-    next_waypoint.x = round( path.poses[i].pose.position.x * 10.0 ) / 10.0;
-    next_waypoint.y = round( path.poses[i].pose.position.y * 10.0 ) / 10.0;
+    next_waypoint.x = path.poses[i].pose.position.x;
+    next_waypoint.y = path.poses[i].pose.position.y;
     next_waypoint.z = target_position.z;
-    if (!return_path.droneTrajectory.empty() && (next_waypoint.x == return_path.droneTrajectory.back().x || next_waypoint.y == return_path.droneTrajectory.back().y)){
+    if (!return_path.droneTrajectory.empty() && ((round(next_waypoint.x * 10.0 ) / 10.0) == (round (return_path.droneTrajectory.back().x *10.0)/10.0) || (round(next_waypoint.y * 10.0 ) / 10.0) == (round (return_path.droneTrajectory.back().y *10.0)/10.0))){
       continue;
     }
     else {

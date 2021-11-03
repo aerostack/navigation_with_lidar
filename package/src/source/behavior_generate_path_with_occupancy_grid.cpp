@@ -73,6 +73,7 @@ void BehaviorGeneratePathWithOccupancyGrid::onConfigure(){
   node_handle.param<std::string>("move_base_goal_topic", move_base_goal_topic_str, "move_base_simple/goal");
   node_handle.param<std::string>("move_base_path_topic", move_base_path_topic_str, "move_base/NavfnROS/plan");
   node_handle.param<std::string>("add_belief_service_str", add_belief_service_str, "add_belief");
+  node_handle.param<std::string>("self_localization/pose", self_localization_pose_topic_str, "self_localization/pose");
 }
 
 void BehaviorGeneratePathWithOccupancyGrid::onActivate(){
@@ -201,13 +202,21 @@ void BehaviorGeneratePathWithOccupancyGrid::convertPath(
   return_path.header.stamp = ros::Time::now();
   return_path.initial_checkpoint = 0;
   return_path.is_periodic = false;
-
+  
   for(int i = 0; i < path.poses.size(); i++){
     droneMsgsROS::dronePositionRefCommand next_waypoint;
-    next_waypoint.x = path.poses[i].pose.position.x;
-    next_waypoint.y = path.poses[i].pose.position.y;
-    next_waypoint.z = target_position.z;
-    if (!return_path.droneTrajectory.empty() && ((round(next_waypoint.x * 10.0 ) / 10.0) == (round (return_path.droneTrajectory.back().x *10.0)/10.0) || (round(next_waypoint.y * 10.0 ) / 10.0) == (round (return_path.droneTrajectory.back().y *10.0)/10.0))){
+    if (i == 0){
+      savepose = *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+self_localization_pose_topic_str, node_handle, ros::Duration(5));
+      next_waypoint.x = savepose.pose.position.x;
+      next_waypoint.y = savepose.pose.position.y;
+      next_waypoint.z = target_position.z;
+    }
+    else {
+      next_waypoint.x = round (path.poses[i].pose.position.x * 100.0) / 100.0;
+      next_waypoint.y = round (path.poses[i].pose.position.y * 100.0) / 100.0;
+      next_waypoint.z = target_position.z;
+    }      
+    if (!return_path.droneTrajectory.empty() && i != path.poses.size()-1 && ((round(next_waypoint.x)) == (round (return_path.droneTrajectory.back().x)) && (round(next_waypoint.y)) == (round (return_path.droneTrajectory.back().y)))){
       continue;
     }
     else {

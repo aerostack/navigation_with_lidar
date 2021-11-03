@@ -66,6 +66,7 @@ private:
   boost::thread *timeout_thread;
   //nuevos
   geometry_msgs::PoseStamped currentGoal;
+  geometry_msgs::PoseStamped savepose;
   boost::mutex goal_mutex, timeout_mutex;
   boost::posix_time::ptime initial_time;
   ros::NodeHandle node_handle;

@@ -69,12 +69,10 @@ void BehaviorClearOccupancyGrid::checkProcesses()
 
 void BehaviorClearOccupancyGrid::checkGoal() 
 {
-  if (savePoseupdate.pose.pose.position == savepose.pose.position && savePoseupdate.pose.pose.orientation == savepose.pose.orientation){
+  /*if (savePoseupdate.pose.pose.position == savepose.pose.position && savePoseupdate.pose.pose.orientation == savepose.pose.orientation){
     BehaviorExecutionManager::setTerminationCause(behavior_execution_manager_msgs::BehaviorActivationFinished::GOAL_ACHIEVED);
-  }
-  
+  }*/
 }
-
 
 void BehaviorClearOccupancyGrid::onConfigure(){
 
@@ -84,6 +82,9 @@ void BehaviorClearOccupancyGrid::onConfigure(){
   nh.param<std::string>("self_localization/pose", pose_topic_str, "self_localization/pose");
   nh.param<std::string>("initialpose", initialpose_topic_str, "initialpose");
   nh.param<std::string>("slam_out_pose", slam_pose_topic_str, "slam_out_pose");
+  initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/" + nspace + "/" + initialpose_topic_str, 1, true); 
+
+  hectorReset = nh.advertise<std_msgs::String>("/" + nspace + "/" + "syscommand", 1000, true);
   is_stopped = false;
 }
 
@@ -91,28 +92,42 @@ void BehaviorClearOccupancyGrid::onConfigure(){
 void BehaviorClearOccupancyGrid::onActivate(){
 
   is_stopped = false;
+
+  std::cout<<hector_reset_msg.data<<std::endl;
+
   savePoseupdate = *ros::topic::waitForMessage<geometry_msgs::PoseWithCovarianceStamped>("/" + nspace + "/"+poseupdate_topic_str, nh, ros::Duration(5));
+
   savepose = *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+pose_topic_str, nh, ros::Duration(5));
+
   savePoseupdate.pose.pose.position =savepose.pose.position;
   savePoseupdate.pose.pose.orientation = savepose.pose.orientation;
- 
-  initial_pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/" + nspace + "/" + initialpose_topic_str, 1, true); 
 
-  hectorReset = nh.advertise<std_msgs::String>("/" + nspace + "/" + "syscommand", 1000, true);
   initial_pose_pub.publish(savePoseupdate);
   hectorReset.publish(hector_reset_msg);
-  *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+slam_pose_topic_str, nh, ros::Duration(5));
 
-  std::cout<<hector_reset_msg.data<<std::endl; 
+  
   
 }
 
 void BehaviorClearOccupancyGrid::onDeactivate(){
   is_stopped = true;
-  initial_pose_pub.shutdown();
-  hectorReset.shutdown();
 }
 
 void BehaviorClearOccupancyGrid::onExecute()
 {
+
+  slam_pose = *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+slam_pose_topic_str, nh, ros::Duration(5));
+  savepose = *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+pose_topic_str, nh, ros::Duration(5));
+
+  if (abs(slam_pose.pose.position.x - savepose.pose.position.x)>0.15 || abs(slam_pose.pose.position.y - savepose.pose.position.y)> 0.15){
+    savePoseupdate = *ros::topic::waitForMessage<geometry_msgs::PoseWithCovarianceStamped>("/" + nspace + "/"+poseupdate_topic_str, nh, ros::Duration(5));
+
+    savepose = *ros::topic::waitForMessage<geometry_msgs::PoseStamped>("/" + nspace + "/"+pose_topic_str, nh, ros::Duration(5));
+ 
+    savePoseupdate.pose.pose.position =savepose.pose.position;
+    savePoseupdate.pose.pose.orientation = savepose.pose.orientation;
+
+    initial_pose_pub.publish(savePoseupdate);
+    hectorReset.publish(hector_reset_msg);
+  }
 }

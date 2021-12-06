@@ -212,8 +212,8 @@ void BehaviorGeneratePathWithOccupancyGrid::convertPath(
       next_waypoint.z = target_position.z;
     }
     else {
-      next_waypoint.x = round (path.poses[i].pose.position.x * 100.0) / 100.0;
-      next_waypoint.y = round (path.poses[i].pose.position.y * 100.0) / 100.0;
+      next_waypoint.x = round (path.poses[i].pose.position.x * 1000.0) / 1000.0;
+      next_waypoint.y = round (path.poses[i].pose.position.y * 1000.0) / 1000.0;
       next_waypoint.z = target_position.z;
     }      
     if (!return_path.droneTrajectory.empty() && i != path.poses.size()-1 && ((round(next_waypoint.x)) == (round (return_path.droneTrajectory.back().x)) && (round(next_waypoint.y)) == (round (return_path.droneTrajectory.back().y)))){
